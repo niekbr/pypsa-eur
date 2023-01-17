@@ -521,6 +521,11 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
         "substation|converter station", case=False
     )
 
+    # allow generators to be mapped on more buses
+    generator_b = ~buses["symbol"].str.contains(
+        "joint|other or not listed|phase shifter", case=False
+    )
+
     def prefer_voltage(x, which):
         index = x.index
         if len(index) == 1:
@@ -539,6 +544,12 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
     lv_b = (bus_map_low == bus_map_low.index).reindex(buses.index, fill_value=False)
     bus_map_high = gb.apply(prefer_voltage, "max")
     hv_b = (bus_map_high == bus_map_high.index).reindex(buses.index, fill_value=False)
+
+    generator_gb = buses.loc[generator_b].groupby(
+        ["x", "y"], as_index=False, group_keys=False, sort=False
+    )
+    bus_map_low_generator = generator_gb.apply(prefer_voltage, "min")
+    lv_b_generator = (bus_map_low_generator == bus_map_low_generator.index).reindex(buses.index, fill_value=False)
 
     onshore_b = pd.Series(False, buses.index)
     offshore_b = pd.Series(False, buses.index)
@@ -569,11 +580,26 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
     # they have at least one connection which is not under_construction
     has_connections_b = pd.Series(False, index=buses.index)
     for b, df in product(("bus0", "bus1"), (n.lines, n.links)):
+        print('---')
+        print(df.loc[df[b] == '7017', 'under_construction'])
         has_connections_b |= ~df.groupby(b).under_construction.min()
+
+    # buses["debug__lv_b_generator"] = lv_b_generator
+    # buses["debug__onshore_b"] = onshore_b
+    # buses["debug__has_connections_b"] = has_connections_b
+
+    buses["lv"] = lv_b
+    buses["onshore"] = onshore_b
+    buses["has_connections"] = has_connections_b
 
     buses["substation_lv"] = (
         lv_b & onshore_b & (~buses["under_construction"]) & has_connections_b
     )
+    buses["generator_substation_lv"] = (
+            lv_b_generator & onshore_b & (~buses["under_construction"]) & has_connections_b & (buses['carrier'] == 'AC')
+    )
+    buses['load_substation_lv'] = buses["substation_lv"] & (buses['carrier'] == 'AC')  # only attach load to AC
+
     buses["substation_off"] = (offshore_b | (hv_b & onshore_b)) & (
         ~buses["under_construction"]
     )

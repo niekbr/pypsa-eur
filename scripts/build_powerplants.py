@@ -148,7 +148,7 @@ if __name__ == "__main__":
     if countries_wo_ppl:
         logging.warning(f"No powerplants known in: {', '.join(countries_wo_ppl)}")
 
-    substations = n.buses.query("substation_lv")
+    substations = n.buses.query("generator_substation_lv")
     ppl = map_country_bus(ppl, substations)
 
     bus_null_b = ppl["bus"].isnull()

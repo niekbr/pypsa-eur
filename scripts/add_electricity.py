@@ -218,7 +218,7 @@ def load_powerplants(ppl_fn):
 
 
 def attach_load(n, regions, load, nuts3_shapes, countries, scaling=1.0):
-    substation_lv_i = n.buses.index[n.buses["substation_lv"]]
+    substation_lv_i = n.buses.index[n.buses["load_substation_lv"]]
     regions = gpd.read_file(regions).set_index("name").reindex(substation_lv_i)
     opsd_load = pd.read_csv(load, index_col=0, parse_dates=True).filter(items=countries)
 

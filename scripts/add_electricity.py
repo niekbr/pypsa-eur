@@ -348,6 +348,7 @@ def attach_wind_and_solar(
                 capital_cost=capital_cost,
                 efficiency=costs.at[suptech, "efficiency"],
                 p_max_pu=ds["profile"].transpose("time", "bus").to_pandas(),
+                source="profile_" + tech
             )
 
 
@@ -382,6 +383,7 @@ def attach_conventional_generators(
     n.madd(
         "Generator",
         ppl.index,
+        name=ppl.name,
         carrier=ppl.carrier,
         bus=ppl.bus,
         p_nom_min=ppl.p_nom.where(ppl.carrier.isin(conventional_carriers), 0),
@@ -392,6 +394,7 @@ def attach_conventional_generators(
         capital_cost=ppl.capital_cost,
         build_year=ppl.datein.fillna(0).astype(int),
         lifetime=(ppl.dateout - ppl.datein).fillna(np.inf),
+        source="powerplantmatching",
     )
 
     for carrier in conventional_config:
@@ -457,6 +460,7 @@ def attach_hydro(n, costs, ppl, profile_hydro, hydro_capacities, carriers, **con
         n.madd(
             "Generator",
             ror.index,
+            name=ror["name"],
             carrier="ror",
             bus=ror["bus"],
             p_nom=ror["p_nom"],
@@ -468,6 +472,7 @@ def attach_hydro(n, costs, ppl, profile_hydro, hydro_capacities, carriers, **con
                 .divide(ror["p_nom"], axis=1)
                 .where(lambda df: df <= 1.0, other=1.0)
             ),
+            source="powerplantmatching"
         )
 
     if "PHS" in carriers and not phs.empty:
@@ -478,6 +483,7 @@ def attach_hydro(n, costs, ppl, profile_hydro, hydro_capacities, carriers, **con
         n.madd(
             "StorageUnit",
             phs.index,
+            name=phs["name"],
             carrier="PHS",
             bus=phs["bus"],
             p_nom=phs["p_nom"],
@@ -529,6 +535,7 @@ def attach_hydro(n, costs, ppl, profile_hydro, hydro_capacities, carriers, **con
             "StorageUnit",
             hydro.index,
             carrier="hydro",
+            name=hydro["name"],
             bus=hydro["bus"],
             p_nom=hydro["p_nom"],
             max_hours=hydro_max_hours,

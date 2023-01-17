@@ -204,6 +204,9 @@ def _load_links_from_eg(buses, eg_links):
     # Connect to neighboring 380kV bus
     links.loc[links.bus1 == "6396", "bus1"] = "6398"
 
+    # See entsoe map, the latest Skagerrak Link is connected differently
+    links.loc['14822', 'bus0'] = "6365"  # instead of 6366
+
     links = _remove_dangling_branches(links, buses)
 
     # Add DC line parameters
@@ -417,6 +420,13 @@ def _set_electrical_parameters_links(links, config, links_p_nom):
         else p_nom
     )
     links.loc[p_nom_unset.index, "p_nom"] = p_nom_unset
+
+    return links
+
+
+def _manually_simplify_link(links):
+    # the Skagerrak Link is 3 lines -> simplify by making it 1 => p_nom is already adjusted in parameter_corrections
+    links.drop(['11679', '14827', '14810'], inplace=True, axis=0)
 
     return links
 
@@ -709,6 +719,7 @@ def base_network(
     lines = _set_electrical_parameters_lines(lines, config)
     transformers = _set_electrical_parameters_transformers(transformers, config)
     links = _set_electrical_parameters_links(links, config, links_p_nom)
+    links = _manually_simplify_link(links)
     converters = _set_electrical_parameters_converters(converters, config)
 
     n = pypsa.Network()

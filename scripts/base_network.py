@@ -449,7 +449,7 @@ def _set_electrical_parameters_transformers(transformers, config):
     config = config["transformers"]
 
     ## Add transformer parameters
-    transformers["x"] = config.get("x", 0.1)
+    transformers["x_pu"] = config.get("x", 0.1)
     transformers["s_nom"] = config.get("s_nom", 2000)
     transformers["type"] = config.get("type", "")
 

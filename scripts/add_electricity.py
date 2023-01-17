@@ -631,6 +631,10 @@ def attach_OPSD_renewables(n, tech_map):
     )
     df = df.query("Fueltype in @tech_map").powerplant.convert_country_to_alpha2()
 
+    ppl_query = snakemake.config["electricity"]["renewables_filter"]
+    if isinstance(ppl_query, str):
+        df.query(ppl_query, inplace=True)
+
     for fueltype, carriers in tech_map.items():
         gens = n.generators[lambda df: df.carrier.isin(carriers)]
         buses = n.buses.loc[gens.bus.unique()]

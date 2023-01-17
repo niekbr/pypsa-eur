@@ -497,7 +497,19 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
             index=buses.index,
         )
 
-    countries = config["countries"]
+    def buses_distance_shape(shape):
+        return pd.Series(
+            np.fromiter(
+                (
+                    Point(x, y).distance(shape)
+                    for x, y in buses.loc[:, ["x", "y"]].values
+                ),
+                dtype=float,
+                count=len(buses),
+            ),
+            index=buses.index,
+        )
+
     country_shapes = gpd.read_file(country_shapes).set_index("name")["geometry"]
     # reindexing necessary for supporting empty geo-dataframes
     offshore_shapes = gpd.read_file(offshore_shapes)
@@ -530,9 +542,14 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
     onshore_b = pd.Series(False, buses.index)
     offshore_b = pd.Series(False, buses.index)
 
+    distance_to_shore = pd.DataFrame()
+
     for country in countries:
         onshore_shape = country_shapes[country]
         onshore_country_b = buses_in_shape(onshore_shape)
+
+        distance_to_shore[country] = buses_distance_shape(onshore_shape)
+
         onshore_b |= onshore_country_b
 
         buses.loc[onshore_country_b, "country"] = country
@@ -543,6 +560,9 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
         offshore_b |= offshore_country_b
 
         buses.loc[offshore_country_b, "country"] = country
+
+    # Margin around mainland because of nordics small islands
+    onshore_b |= distance_to_shore.min(axis=1) < 0.1
 
     # Only accept buses as low-voltage substations (where load is attached), if
     # they have at least one connection which is not under_construction

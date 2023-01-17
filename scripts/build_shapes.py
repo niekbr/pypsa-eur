@@ -255,13 +255,15 @@ if __name__ == "__main__":
         snakemake = mock_snakemake("build_shapes")
     configure_logging(snakemake)
 
+    countries_plus_base = snakemake.config["countries"] + snakemake.config["countries_base"]
+
     country_shapes = countries(
-        snakemake.input.naturalearth, snakemake.config["countries"]
+        snakemake.input.naturalearth, countries_plus_base
     )
     country_shapes.reset_index().to_file(snakemake.output.country_shapes)
 
     offshore_shapes = eez(
-        country_shapes, snakemake.input.eez, snakemake.config["countries"]
+        country_shapes, snakemake.input.eez, countries_plus_base
     )
     offshore_shapes.reset_index().to_file(snakemake.output.offshore_shapes)
 

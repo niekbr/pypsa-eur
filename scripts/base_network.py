@@ -510,6 +510,7 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
             index=buses.index,
         )
 
+    countries = config["countries"] + config["countries_base"]
     country_shapes = gpd.read_file(country_shapes).set_index("name")["geometry"]
     # reindexing necessary for supporting empty geo-dataframes
     offshore_shapes = gpd.read_file(offshore_shapes)
@@ -615,6 +616,8 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
                 c_nan_b.sum(), c_nan_b.sum() - c_tag_nan_b.sum()
             )
         )
+
+    buses['base_only'] = ~buses['country'].isin(config["countries"])  # country is only in 'countries_base' config
 
     return buses
 

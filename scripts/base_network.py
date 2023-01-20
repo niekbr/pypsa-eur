@@ -580,8 +580,6 @@ def _set_countries_and_substations(n, config, country_shapes, offshore_shapes):
     # they have at least one connection which is not under_construction
     has_connections_b = pd.Series(False, index=buses.index)
     for b, df in product(("bus0", "bus1"), (n.lines, n.links)):
-        print('---')
-        print(df.loc[df[b] == '7017', 'under_construction'])
         has_connections_b |= ~df.groupby(b).under_construction.min()
 
     # buses["debug__lv_b_generator"] = lv_b_generator

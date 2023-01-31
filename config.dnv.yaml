@@ -25,8 +25,8 @@ countries_base: ['NL', 'EE', 'LV', 'LT', 'PL', 'DE', 'GB', 'RU']
 countries: ['DK', 'FI', 'NO', 'SE']
 
 snapshots:
-  start: "2016-01-01"
-  end: "2017-01-01"
+  start: "2020-01-01"
+  end: "2021-01-01"
   closed: 'left'
 
 enable:
@@ -64,11 +64,11 @@ electricity:
 
   # use pandas query strings here to filter powerplantmatching data
 #  powerplants_filter: ( (DateOut >= 2015 or DateOut != DateOut) and (DateIn <= 2015 or DateIn != DateIn) and (Name != 'Olkiluoto') )
-  powerplants_filter: ( (DateOut >= 2016 or DateOut != DateOut) and (DateIn <= 2016 or DateIn != DateIn) and (Name != 'Olkiluoto') )
+  powerplants_filter: ( (DateOut >= 2020 or DateOut != DateOut) and (DateIn <= 2020 or DateIn != DateIn) and (Name != 'Olkiluoto') )
   # pandas query, or boolean to either include all or none of data/custom_powerplants.csv
-  custom_powerplants: ( (DateOut >= 2016 or DateOut != DateOut) and (DateIn <= 2016 or DateIn != DateIn) )
+  custom_powerplants: ( (DateOut >= 2020 or DateOut != DateOut) and (DateIn <= 2020 or DateIn != DateIn) )
   # use pandas query strings here to filter renewable powerplants from OPSD
-  renewables_filter: ( (DateOut >= 2016 or DateOut != DateOut) and (DateIn <= 2016 or DateIn != DateIn) )
+  renewables_filter: ( (DateOut >= 2020 or DateOut != DateOut) and (DateIn <= 2020 or DateIn != DateIn) )
 
   conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, lignite, geothermal, biomass]
   renewable_carriers: [solar, onwind, offwind-ac, offwind-dc, hydro]
@@ -78,7 +78,7 @@ electricity:
     # Add capacities from OPSD data
     from_opsd: true
     # Renewable capacities are based on existing capacities reported by IRENA
-    year: 2016
+    year: 2020
     # Artificially limit maximum capacities to factor * (IRENA capacities),
     # i.e. 110% of <years>'s capacities => expansion_limit: 1.1
     # false: Use estimated renewable potentials determine by the workflow

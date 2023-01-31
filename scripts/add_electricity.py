@@ -5,7 +5,7 @@
 
 # coding: utf-8
 """
-Adds electrical generators and existing hydro storage units to a base network. This is another addition
+Adds electrical generators and existing hydro storage units to a base network.
 
 Relevant Settings
 -----------------
